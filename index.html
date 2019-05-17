@@ -191,6 +191,7 @@
     </style>
 </head>
 <body>
+    <script src="wizwebchannel.js" language="javascript" type="text/javascript" ></script>
     <script language="javascript">
     //
     let inited = false;
@@ -209,9 +210,29 @@
     var strings = {};
     var languangeFileName;
 
+    // Initialize WizNote APIs
+    new QWebChannel(qt.webChannelTransport, function (channel) {
+        var objectNames = ["WizExplorerApp", "JSPluginSpec", "JSPluginModuleSpec"];
+        for (var i = 0; i < objectNames.length; i++) {
+            var key = objectNames[i];
+            window[key] = channel.objects[key];
+        }
+        console.log("web channel opened");
+        //
+        if (typeof initForWebEngine !== 'undefined') {
+            try {
+                initForWebEngine();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    });
+    
     async function initForWebEngine() {
+        if (!window.WizExplorerApp) return;
+        if (inited) return;
         objApp = window.WizExplorerApp;
-        pluginData = window.WizPluginData;
+        pluginData = window.JSPluginSpec;
         pluginPath = pluginData.path;
         objWindow = objApp.Window;
         browserObject = objWindow.CurrentDocumentBrowserObject;
