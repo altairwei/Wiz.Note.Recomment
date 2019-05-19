@@ -233,27 +233,35 @@
         if (inited) return;
         objApp = window.WizExplorerApp;
         pluginData = window.JSPluginSpec;
+        moduleData = window.JSPluginModuleSpec;
         pluginPath = pluginData.path;
         objWindow = objApp.Window;
-        browserObject = objWindow.CurrentDocumentBrowserObject;
         strings = JSON.parse(pluginData.strings);
         objApp.LoadStringFromFile = LoadStringFromFile;
         //
         languangeFileName = pluginPath + "manifest.ini";
+        reloadContent();
         //
-        const text = await browserObject.ExecuteScript("document.body.textContent");
-        if (text && text.length > 0) {
-            Show(text);
-        }
+        moduleData.documentChanged.connect(reloadContent);
+        moduleData.willShow.connect(reloadContent);
     }
     //
     initForWebEngine();
     //
+    async function reloadContent() {
+        document.body.innerHTML = "";
+        browserObject = await objWindow.CurrentDocumentBrowserObject();
+        const text = await browserObject.ExecuteScript("document.body.textContent");
+        if (text && text.length > 0) {
+            searchAndShow(text);
+        }
+    }
+
     function LoadStringFromFile(file, key) {
       return strings[key];
     }
     //
-    function Show(content) {
+    function searchAndShow(content) {
         //
         var request = new XMLHttpRequest();
         var url = 'https://note.wiz.cn/search/nlp';
