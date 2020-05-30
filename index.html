@@ -197,7 +197,7 @@
     let inited = false;
     var objApp;
     var pluginPath;
-    var pluginData;
+    var objPlugin;
     var objWindow;
     var browserObject;
     var htmltext = "";
@@ -212,7 +212,7 @@
 
     // Initialize WizNote APIs
     new QWebChannel(qt.webChannelTransport, function (channel) {
-        var objectNames = ["WizExplorerApp", "JSPluginSpec", "JSPluginModuleSpec"];
+        var objectNames = ["WizExplorerApp", "JSPlugin", "JSPluginModule"];
         for (var i = 0; i < objectNames.length; i++) {
             var key = objectNames[i];
             window[key] = channel.objects[key];
@@ -232,18 +232,18 @@
         if (!window.WizExplorerApp) return;
         if (inited) return;
         objApp = window.WizExplorerApp;
-        pluginData = window.JSPluginSpec;
-        moduleData = window.JSPluginModuleSpec;
-        pluginPath = pluginData.path;
+        objPlugin = window.JSPlugin;
+        objModule = window.JSPluginModule;
+        pluginPath = objPlugin.PluginPath;
         objWindow = objApp.Window;
-        strings = JSON.parse(pluginData.strings);
+        strings = JSON.parse(objPlugin.strings);
         objApp.LoadStringFromFile = LoadStringFromFile;
         //
         languangeFileName = pluginPath + "manifest.ini";
         reloadContent();
         //
-        moduleData.documentChanged.connect(reloadContent);
-        moduleData.willShow.connect(reloadContent);
+        objModule.documentChanged.connect(reloadContent);
+        objModule.willShow.connect(reloadContent);
     }
     //
     initForWebEngine();
